@@ -28,20 +28,78 @@ Ejecutamos el Script
 python3 brute-rar.py
 ```
 
-# Brute Rar V2
+# Brute RAR V2
 
-brute-rar-v2.py: versión nueva con detección de sistema,
-- instalación automática de 7-Zip/UnRAR cuando sea posible, workers
-- paralelos, lectura streaming del diccionario, parada temprana,
-- progreso, timeouts, modo interactivo y CLI avanzada.
+Esta version esta pensada para laboratorios, CTFs y recuperacion legitima: detecta el sistema, busca 7-Zip/UnRAR, intenta instalar un motor compatible si falta y ejecuta pruebas en paralelo con parada temprana.
 
-Uso simple:
+## Caracteristicas
+- Funciona en Linux, Windows, macOS y Termux cuando hay 7-Zip o UnRAR disponible.                                        - Instalacion automatica del motor externo cuando es posible (`apt`, `dnf`, `pacman`, `zypper`, `brew`, `pkg`, `winget` o `choco`).
+- Lectura del diccionario por streaming para no cargar archivos grandes completos en memoria.
+- Workers paralelos configurados automaticamente segun la CPU.
+- Prueba con `test` del archivo, sin extraerlo en cada intento.
+- Parada temprana cuando encuentra la contraseña.
+- Progreso con intentos, porcentaje, velocidad media, timeouts y errores.
+- Opciones avanzadas por CLI sin romper el modo simple interactivo.
+
+## Requisitos
+
+- Python 3.8 o superior.
+- 7-Zip o UnRAR. Si no estan instalados, el script intentara instalarlos automaticamente.
+- Un archivo RAR y un diccionario de contraseñas en texto plano.       
+Las dependencias Python de terceros no son necesarias. El archivo `requirements.txt` se incluye para que `pip install -r requirements.txt` sea valido en flujos de GitHub.
+
+## Uso Rapido
+
+Modo interactivo:
 
 ```bash
-  python3 brute-rar-v2.py
+python brute-rar-v2.py
 ```
-  O directo:
-  
+
+El script pedira solo:
+
+1. Ruta del archivo RAR.
+2. Ruta del diccionario `.txt`.
+
+Modo directo:
+
 ```bash
-  python3 brute-rar-v2.py -a archivo.rar -w diccionario.txt
+python brute-rar-v2.py -a secreto.rar -w rockyou.txt
 ```
+
+En Windows:
+
+```powershell
+py .\brute-rar-v2.py -a C:\Users\me\Desktop\secreto.rar -w C:\Users\me\Desktop\diccionario.txt
+```
+
+## Opciones Utiles
+
+```bash
+python brute-rar-v2.py -a secreto.rar -w rockyou.txt -j 12
+python brute-rar-v2.py -a secreto.rar -w rockyou.txt --engine 7z
+python brute-rar-v2.py -a secreto.rar -w rockyou.txt --dedupe
+python brute-rar-v2.py -a secreto.rar -w rockyou.txt --extract-to salida
+python brute-rar-v2.py -a secreto.rar -w rockyou.txt --no-install
+```
+
+- `-j, --workers`: numero de intentos paralelos. Por defecto usa el numero de CPUs, con maximo 32.
+- `--engine`: fuerza `7z`, `unrar` o deteccion automatica.
+- `--timeout`: segundos maximos por intento. Sube este valor si el RAR es muy grande.
+- `--batch-size`: tamaño de lote interno. El valor por defecto suele ser estable.
+- `--encoding`: codificacion del diccionario. Por defecto `utf-8`.
+- `--dedupe`: evita probar contraseñas repetidas, usando mas memoria.
+- `--extract-to`: extrae el archivo automaticamente si encuentra la contraseña.
+- `--no-install`: no intenta instalar herramientas automaticamente.
+- `--quiet`: reduce la salida.
+
+## Notas De Rendimiento
+
+La velocidad real depende de la CPU, el tamaño del RAR, el tipo de cifrado, el motor externo y la calidad del diccionario. RAR5 con cifrado fuerte puede ser lento por diseño. El script optimiza el flujo evitando extracciones repetidas, leyendo el diccionario por streaming y ejecutando varias pruebas en paralelo, pero no puede garantizar encontrar una contraseña que no este en el diccionario.
+
+Para mejorar resultados:
+
+- Usa un diccionario relevante al objetivo autorizado.
+- Ajusta `--workers` si el sistema se satura.
+- Usa `--dedupe` si el diccionario tiene muchas repeticiones y tienes memoria suficiente.
+- Evita probar sobre discos lentos o rutas de red.
