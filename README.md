@@ -27,3 +27,21 @@ Ejecutamos el Script
 ```bash
 python3 brute-rar.py
 ```
+
+# Brute Rar V2
+
+brute-rar-v2.py: versión nueva con detección de sistema,
+- instalación automática de 7-Zip/UnRAR cuando sea posible, workers
+- paralelos, lectura streaming del diccionario, parada temprana,
+- progreso, timeouts, modo interactivo y CLI avanzada.
+
+Uso simple:
+
+```bash
+  python3 brute-rar-v2.py
+```
+  O directo:
+  
+```bash
+  python3 brute-rar-v2.py -a archivo.rar -w diccionario.txt
+```
